@@ -1,0 +1,12 @@
+# ingnore specific files
+*.txt
+*.csv
+*.png
+*.tsv
+
+# Ignore specific folder
+data/
+logger/
+__pycache__/
+.spyproject/config/
+credentials/
