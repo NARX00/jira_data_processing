@@ -1,4 +1,4 @@
-# JIRA Data Processing Project
+# JIRA Cloud Data Processing Project
 
 ## Overview
 This project provides tools for interacting with the JIRA API, processing data, and visualizing results. It includes functionality for fetching JIRA data, processing and cleaning the data, and generating insightful plots.
