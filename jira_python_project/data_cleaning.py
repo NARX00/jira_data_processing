@@ -72,19 +72,34 @@ def transform_and_clean_data(detailed_df: pd.DataFrame, summary_df: pd.DataFrame
     version_directory = os.path.join(Config.DATA_DIRECTORY, version_name)
     os.makedirs(version_directory, exist_ok=True)
     
-    # Saving to CSV files (consider moving this to a separate function)
-    try:
-        # Save CSVs in the version-specific directory
-        detailed_filename = os.path.join(version_directory, f"{version_name}-detailed.csv")
-        summary_filename = os.path.join(version_directory, f"{version_name}-summary.csv")
-        stats_filename = os.path.join(version_directory, f"{version_name}-stats.csv")
+    # Prepare dataframes for saving
+    dataframes_to_save = {
+        f"{version_name}-detailed.csv": detailed_df,
+        f"{version_name}-summary.csv": summary_df,
+        f"{version_name}-stats.csv": stats_df
+    }
 
-        detailed_df.to_csv(detailed_filename, encoding='utf-8')
-        summary_df.to_csv(summary_filename, encoding='utf-8')
-        stats_df.to_csv(stats_filename, encoding='utf-8')
-        
-    except Exception as e:
-        logger.error(f"Error writing to CSV files: {e}")
-        raise
+    # Save dataframes to CSV
+    save_dataframes_to_csv(dataframes_to_save, version_directory)
 
     return detailed_df
+
+
+def save_dataframes_to_csv(dataframes_to_save: dict, version_directory: str):
+    """
+    Saves a dictionary of DataFrames to CSV files in the specified directory.
+
+    Parameters:
+    dataframes_to_save (dict): A dictionary where keys are filenames and values are DataFrames.
+    version_directory (str): The directory where CSV files will be saved.
+    """
+    for filename, df in dataframes_to_save.items():
+        try:
+            filepath = os.path.join(version_directory, filename)
+            df.to_csv(filepath, encoding='utf-8')
+            logger.info(f"Successfully saved {filepath}")
+        except Exception as e:
+            logger.error(f"Error writing {filename} to CSV: {e}")
+            # Decide if you want to raise the exception, or just log it and continue
+            # For now, let's log and continue, but this can be changed based on requirements
+            # raise

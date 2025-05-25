@@ -5,7 +5,6 @@ The main script for executing the JIRA data processing and visualization pipelin
 This script orchestrates the fetching, processing, cleaning, and plotting of JIRA data.
 """
 
-import sys
 import time
 
 from config import Config
@@ -33,7 +32,8 @@ def main():
        
         except Exception as e:
             logger.error(f"Error processing {project_name} - {version_name}: {e}")
-            sys.exit(1)
+            # Continue to the next project/version if an error occurs
+            continue
     logger.info("Application end")
 
 if __name__ == "__main__":
