@@ -24,13 +24,9 @@ def plot_commits_per_issue(detailed_df: pd.DataFrame, project_name: str, version
     Returns:
     None: The function saves the plot as an image file and displays it.
     """
-    # if detailed_df.empty or 'Total_Comits' not in detailed_df.columns:
-    #     logger.warning(f"No data available to plot for {project_name} - {version_name}")
-    #     return
-    
-    try: 
-        if 'Total_Commits' in detailed_df:
-    # Sort the DataFrame based on 'Total_Commits' in ascending order
+    try:
+        if 'Total_Commits' in detailed_df.columns:
+            # Sort the DataFrame based on 'Total_Commits' in ascending order
             sorted_df = detailed_df.sort_values(by='Total_Commits', ascending=True)
 
             x = sorted_df['Key']
@@ -56,35 +52,23 @@ def plot_commits_per_issue(detailed_df: pd.DataFrame, project_name: str, version
             for bar, value in zip(bars, y):
                 text_x_pos = bar.get_width()
                 ax.text(text_x_pos, bar.get_y() + bar.get_height() / 2, f"{value}", va='center', ha='left')
-        
+
             # Create a version-specific directory
             version_directory = os.path.join(Config.DATA_DIRECTORY, version_name)
             os.makedirs(version_directory, exist_ok=True)
-    
+
             plt.tight_layout()
-    
-            # Ensure version-specific directory exists
-            version_directory = os.path.join(Config.DATA_DIRECTORY, version_name)
-            os.makedirs(version_directory, exist_ok=True)
-    
+
             # Save the plot in the version-specific directory
             plot_filename = os.path.join(version_directory, f'Commits_per_Issue_{project_name}_{version_name}.png')
             plt.savefig(plot_filename)
-    
-            # Optionally display the plot
-            # plt.show()
-            pass
-        
+
+            logger.info(f"Plot saved to {plot_filename}")
+
         else:
             logger.warning(f"No data available to plot for {project_name} - {version_name}.")
-    
+
     except Exception as e:
         logger.error(f"Error plotting commits per issue: {e}")
         raise
-            
-            
-            
-            
-            
-            
             

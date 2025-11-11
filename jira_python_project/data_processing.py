@@ -61,24 +61,27 @@ def process_single_issue(issue: dict, auth: Tuple[str, str], headers: dict) -> d
     # Extracting basic issue data
     id_list = issue['id']
     key_list = issue['key']
-    assignee_name = issue['fields']['assignee']['displayName']
+    # Handle None assignee (unassigned issues)
+    assignee = issue['fields'].get('assignee')
+    assignee_name = assignee['displayName'] if assignee else 'Unassigned'
     issue_type = issue['fields']['issuetype']['name']
 
     # Story points extraction
     story_points = issue['fields'].get('customfield_10029') or issue['fields'].get('customfield_10048')
 
     # Prepare URLs for additional data retrieval
-    url_commits = f"{Config.BASE_URL}/rest/dev-status/latest/issue/detail?issueId={id_list}&applicationType=bitbucket&dataType=repository"
-    url_changelog = f"{Config.BASE_URL}/rest/api/3/issue/{key_list}/changelog"
-    issue_url = f"{Config.BASE_URL}/rest/api/3/issue/{key_list}"
-    
+    base_url = Config.get_base_url()
+    url_commits = f"{base_url}/rest/dev-status/latest/issue/detail?issueId={id_list}&applicationType=bitbucket&dataType=repository"
+    url_changelog = f"{base_url}/rest/api/3/issue/{key_list}/changelog"
+    issue_url = f"{base_url}/rest/api/3/issue/{key_list}"
+
     # Retrieve commits by issue ID
-    commit_response = requests.get(url_commits, headers=headers, auth=auth)
+    commit_response = requests.get(url_commits, headers=headers, auth=auth, timeout=Config.REQUEST_TIMEOUT)
     commit_response.raise_for_status()  # Handle HTTP errors
     dict_commits = commit_response.json()
 
     # Retrieve changelog by issue key
-    changelog_response = requests.get(url_changelog, headers=headers, auth=auth)
+    changelog_response = requests.get(url_changelog, headers=headers, auth=auth, timeout=Config.REQUEST_TIMEOUT)
     changelog_response.raise_for_status()  # Handle HTTP errors
     changelog = changelog_response.json()
 
@@ -96,12 +99,15 @@ def process_single_issue(issue: dict, auth: Tuple[str, str], headers: dict) -> d
         total_changelog.append([created, to_status])
 
     # Retrieve creation date by issue key
-    issue_response = requests.get(issue_url, headers=headers, auth=auth)
+    issue_response = requests.get(issue_url, headers=headers, auth=auth, timeout=Config.REQUEST_TIMEOUT)
     issue_response.raise_for_status()  # Handle HTTP errors
     creation_date = issue_response.json()["fields"]["created"]
 
-    # Count total commits
-    total_commits = [len(repo["commits"]) for repo in dict_commits["detail"][0]["repositories"]]
+    # Count total commits - handle cases where detail or repositories might be empty
+    total_commits = []
+    if dict_commits.get("detail") and len(dict_commits["detail"]) > 0:
+        repositories = dict_commits["detail"][0].get("repositories", [])
+        total_commits = [len(repo.get("commits", [])) for repo in repositories]
 
     # Combine collected data into a result dict
     processed_issue_data = {

@@ -1,0 +1,18 @@
+# JIRA Data Processing Project - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# HTTP requests and API communication
+requests>=2.31.0,<3.0.0
+
+# Data processing and analysis
+pandas>=2.0.0,<3.0.0
+
+# Data visualization
+matplotlib>=3.7.0,<4.0.0
+
+# Note: Python 3.6+ is required
+# For development, you may also want to install:
+# - pytest (for testing)
+# - black (for code formatting)
+# - flake8 (for linting)
+# - mypy (for type checking)

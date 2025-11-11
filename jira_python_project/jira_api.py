@@ -45,8 +45,8 @@ def get_jira_auth():
         Exception: If there is an error in fetching decrypted email or token.
     """
     try:
-        return requests.auth.HTTPBasicAuth(Config.EMAIL, Config.API_KEY)
-    
+        return requests.auth.HTTPBasicAuth(Config.get_email(), Config.get_api_key())
+
     except Exception as e:
         logger.error(f"Error getting JIRA auth: {e}")
         raise  # Re-raising the exception to be handled by the caller
@@ -73,7 +73,7 @@ def make_api_request(url: str, auth: tuple) -> dict:
             raise ValueError("Invalid URL provided")
 
         headers = {"Accept": "application/json"}
-        response = requests.get(url, headers=headers, auth=auth)
+        response = requests.get(url, headers=headers, auth=auth, timeout=Config.REQUEST_TIMEOUT)
         response.raise_for_status()
 
         return response.json()
@@ -100,7 +100,7 @@ def get_issues_by_project_version(project_name: str, version_name: str) -> List[
     all_issues = []
 
     while True:
-        url = f"{Config.BASE_URL}/rest/api/3/search?jql={jql_query_encoded}&startAt={start_at}&maxResults={max_results}"
+        url = f"{Config.get_base_url()}/rest/api/3/search?jql={jql_query_encoded}&startAt={start_at}&maxResults={max_results}"
         logger.debug(f"Making API request to URL: {url}")
 
         try:

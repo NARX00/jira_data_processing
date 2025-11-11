@@ -1,4 +1,4 @@
-# looger_config.py
+# logger_config.py
 
 """
 This module sets up the advanced logging configuration for the application.
